@@ -51,6 +51,23 @@
             width: 100%;
             bottom: 0;
         }
+        button {
+            background-color: #8B4513;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+        button:hover {
+            background-color: #A0522D;
+        }
+        #carrito {
+            border: 1px solid #ddd;
+            padding: 10px;
+            min-height: 50px;
+        }
     </style>
 </head>
 <body>
@@ -67,10 +84,19 @@
     <section>
         <h2>Nuestros Productos Destacados</h2>
         <ul>
-            <li><strong>Floral Primavera:</strong> Una mezcla refrescante de jazmín y rosas, ideal para el día a día.</li>
-            <li><strong>Nocturno Misterioso:</strong> Notas de vainilla y ámbar para ocasiones especiales.</li>
-            <li><strong>Cítrico Energizante:</strong> Limón y menta para un toque revitalizante.</li>
-            <li><strong>Oriental Exótico:</strong> Especias y almizcles para un aroma sofisticado.</li>
+            <li><strong>Floral Primavera:</strong> Una mezcla refrescante de jazmín y rosas, ideal para el día a día. <button onclick="addToCart('Floral Primavera', 45)">Añadir al carrito</button></li>
+            <li><strong>Nocturno Misterioso:</strong> Notas de vainilla y ámbar para ocasiones especiales. <button onclick="addToCart('Nocturno Misterioso', 55)">Añadir al carrito</button></li>
+            <li><strong>Cítrico Energizante:</strong> Limón y menta para un toque revitalizante. <button onclick="addToCart('Cítrico Energizante', 40)">Añadir al carrito</button></li>
+            <li><strong>Oriental Exótico:</strong> Especias y almizcles para un aroma sofisticado. <button onclick="addToCart('Oriental Exótico', 60)">Añadir al carrito</button></li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Perfumes Árabes</h2>
+        <ul>
+            <li><strong>Mandarin Sky Elixir:</strong> Notas cítricas de mandarina, frescas y afrutadas, con toques celestiales. Precio: 75€ <button onclick="addToCart('Mandarin Sky Elixir', 75)">Añadir al carrito</button></li>
+            <li><strong>Vulcan Feu:</strong> Aromas intensos y apasionados, con notas de fuego volcánico, especias y madera. Precio: 85€ <button onclick="addToCart('Vulcan Feu', 85)">Añadir al carrito</button></li>
+            <li><strong>Club de Nuit:</strong> Seductor y nocturno, con vainilla, ámbar y toques misteriosos. Precio: 90€ <button onclick="addToCart('Club de Nuit', 90)">Añadir al carrito</button></li>
         </ul>
     </section>
 
@@ -79,8 +105,48 @@
         <p>Aplica el perfume en puntos de pulso como muñecas, cuello y detrás de las orejas para una duración óptima. Almacena tus perfumes en un lugar fresco y oscuro.</p>
     </section>
 
+    <section id="carrito-section">
+        <h2>Carrito de Compras</h2>
+        <div id="carrito">
+            <p>Tu carrito está vacío.</p>
+        </div>
+        <button onclick="clearCart()">Vaciar carrito</button>
+    </section>
+
     <footer>
         <p>&copy; 2026 Perfumería Elegante. Todos los derechos reservados.</p>
     </footer>
+
+    <script>
+        let cart = [];
+        let total = 0;
+
+        function addToCart(product, price) {
+            cart.push({ name: product, price: price });
+            total += price;
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartDiv = document.getElementById('carrito');
+            if (cart.length === 0) {
+                cartDiv.innerHTML = '<p>Tu carrito está vacío.</p>';
+            } else {
+                let html = '<ul>';
+                cart.forEach(item => {
+                    html += `<li>${item.name} - ${item.price}€</li>`;
+                });
+                html += '</ul>';
+                html += `<p><strong>Total: ${total}€</strong></p>`;
+                cartDiv.innerHTML = html;
+            }
+        }
+
+        function clearCart() {
+            cart = [];
+            total = 0;
+            updateCart();
+        }
+    </script>
 </body>
 </html>
