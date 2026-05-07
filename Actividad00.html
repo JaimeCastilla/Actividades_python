@@ -155,6 +155,14 @@
         button:hover {
             background-color: #A0522D;
         }
+        button.animate {
+            animation: pulse 0.6s ease-in-out;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
         #carrito {
             border: 1px solid #ddd;
             padding: 10px;
@@ -410,6 +418,9 @@
 
         function addToCartFromDetail() {
             if (!currentDetailProduct.name) return;
+            const button = document.getElementById('detail-add-button');
+            button.classList.add('animate');
+            setTimeout(() => button.classList.remove('animate'), 600);
             addToCart(currentDetailProduct.name, currentDetailProduct.price);
             showNotification();
             openTab('carrito');
@@ -451,6 +462,9 @@
         }
 
         function addToCartFromModal() {
+            const button = event.target;
+            button.classList.add('animate');
+            setTimeout(() => button.classList.remove('animate'), 600);
             addToCart(currentModalProduct.name, currentModalProduct.price);
             closeModal();
             showNotification();
