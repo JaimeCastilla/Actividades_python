@@ -190,6 +190,24 @@
         .close:hover {
             color: black;
         }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -337,6 +355,10 @@
         <p>&copy; 2026 Perfumería Elegante. Todos los derechos reservados.</p>
     </footer>
 
+    <div id="notification" class="notification">
+        ¡Producto añadido al carrito!
+    </div>
+
     <script>
         let cart = [];
         let total = 0;
@@ -369,6 +391,14 @@
             updateCart();
         }
 
+        function showNotification() {
+            const notification = document.getElementById('notification');
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
         function showProductDetail(name, desc, price, img) {
             currentDetailProduct = { name, price };
             document.getElementById('detail-title').textContent = name;
@@ -381,6 +411,8 @@
         function addToCartFromDetail() {
             if (!currentDetailProduct.name) return;
             addToCart(currentDetailProduct.name, currentDetailProduct.price);
+            showNotification();
+            openTab('carrito');
         }
 
         function updateCart() {
@@ -421,6 +453,8 @@
         function addToCartFromModal() {
             addToCart(currentModalProduct.name, currentModalProduct.price);
             closeModal();
+            showNotification();
+            openTab('carrito');
         }
 
         window.onclick = function(event) {
