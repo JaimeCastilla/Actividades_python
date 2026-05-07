@@ -1,0 +1,5 @@
+saco_lista = ["tenis", "baloncesto", "rugby", "futbol"]
+
+for balon in saco_lista:
+    if balon== "futbol":
+        print(f"Lista de balones: {balon}")
