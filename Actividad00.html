@@ -65,12 +65,17 @@
             gap: 20px;
         }
         .product {
-            flex: 1 1 200px;
+            flex: 1 1 220px;
             text-align: center;
             border: 1px solid #ddd;
             padding: 10px;
             border-radius: 8px;
             cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .product:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         .product img {
             width: 100%;
@@ -80,6 +85,54 @@
         }
         .product h3 {
             margin: 10px 0;
+        }
+        .subtabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .subtab-button {
+            background-color: #ddd;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            color: #333;
+        }
+        .subtab-button.active,
+        .subtab-button:hover {
+            background-color: #8B4513;
+            color: white;
+        }
+        .product-group {
+            display: none;
+        }
+        .product-group.active {
+            display: block;
+        }
+        .detail-panel {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        #detail-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+        }
+        #detail-img {
+            flex: 1 1 400px;
+            max-width: 400px;
+            width: 100%;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        .detail-info {
+            flex: 1 1 300px;
         }
         footer {
             text-align: center;
@@ -164,54 +217,96 @@
 
     <div id="productos" class="tab-content">
         <section>
-            <h2>Nuestros Productos Destacados</h2>
-            <div class="products">
-                <div class="product" onclick="openModal('Floral Primavera', 'Una mezcla refrescante de jazmín y rosas, ideal para el día a día.', 45, 'https://via.placeholder.com/150/FF69B4/FFFFFF?text=Floral+Primavera')">
-                    <img src="https://via.placeholder.com/150/FF69B4/FFFFFF?text=Floral+Primavera" alt="Floral Primavera">
-                    <h3>Floral Primavera</h3>
-                    <p>45€</p>
-                    <button onclick="addToCart('Floral Primavera', 45); event.stopPropagation();">Añadir al carrito</button>
-                </div>
-                <div class="product" onclick="openModal('Nocturno Misterioso', 'Notas de vainilla y ámbar para ocasiones especiales.', 55, 'https://via.placeholder.com/150/8B4513/FFFFFF?text=Nocturno+Misterioso')">
-                    <img src="https://via.placeholder.com/150/8B4513/FFFFFF?text=Nocturno+Misterioso" alt="Nocturno Misterioso">
-                    <h3>Nocturno Misterioso</h3>
-                    <p>55€</p>
-                    <button onclick="addToCart('Nocturno Misterioso', 55); event.stopPropagation();">Añadir al carrito</button>
-                </div>
-                <div class="product" onclick="openModal('Cítrico Energizante', 'Limón y menta para un toque revitalizante.', 40, 'https://via.placeholder.com/150/00FF00/FFFFFF?text=Citrico+Energizante')">
-                    <img src="https://via.placeholder.com/150/00FF00/FFFFFF?text=Citrico+Energizante" alt="Cítrico Energizante">
-                    <h3>Cítrico Energizante</h3>
-                    <p>40€</p>
-                    <button onclick="addToCart('Cítrico Energizante', 40); event.stopPropagation();">Añadir al carrito</button>
-                </div>
-                <div class="product" onclick="openModal('Oriental Exótico', 'Especias y almizcles para un aroma sofisticado.', 60, 'https://via.placeholder.com/150/FFD700/FFFFFF?text=Oriental+Exotico')">
-                    <img src="https://via.placeholder.com/150/FFD700/FFFFFF?text=Oriental+Exotico" alt="Oriental Exótico">
-                    <h3>Oriental Exótico</h3>
-                    <p>60€</p>
-                    <button onclick="addToCart('Oriental Exótico', 60); event.stopPropagation();">Añadir al carrito</button>
+            <h2>Nuestros Productos</h2>
+            <div class="subtabs">
+                <button class="subtab-button active" onclick="openSubTab('destacados', this)">Destacados</button>
+                <button class="subtab-button" onclick="openSubTab('arabes', this)">Árabes</button>
+                <button class="subtab-button" onclick="openSubTab('recomendados', this)">Recomendados</button>
+            </div>
+
+            <div id="destacados" class="product-group active">
+                <h3>Destacados</h3>
+                <div class="products">
+                    <div class="product" onclick="showProductDetail('Floral Primavera', 'Una mezcla refrescante de jazmín y rosas, ideal para el día a día.', 45, 'https://via.placeholder.com/300/FF69B4/FFFFFF?text=Floral+Primavera')">
+                        <img src="https://via.placeholder.com/300/FF69B4/FFFFFF?text=Floral+Primavera" alt="Floral Primavera">
+                        <h3>Floral Primavera</h3>
+                        <p>45€</p>
+                        <button onclick="openModal('Floral Primavera', 'Una mezcla refrescante de jazmín y rosas, ideal para el día a día.', 45, 'https://via.placeholder.com/300/FF69B4/FFFFFF?text=Floral+Primavera'); event.stopPropagation();">Ver detalles</button>
+                    </div>
+                    <div class="product" onclick="showProductDetail('Nocturno Misterioso', 'Notas de vainilla y ámbar para ocasiones especiales.', 55, 'https://via.placeholder.com/300/8B4513/FFFFFF?text=Nocturno+Misterioso')">
+                        <img src="https://via.placeholder.com/300/8B4513/FFFFFF?text=Nocturno+Misterioso" alt="Nocturno Misterioso">
+                        <h3>Nocturno Misterioso</h3>
+                        <p>55€</p>
+                        <button onclick="openModal('Nocturno Misterioso', 'Notas de vainilla y ámbar para ocasiones especiales.', 55, 'https://via.placeholder.com/300/8B4513/FFFFFF?text=Nocturno+Misterioso'); event.stopPropagation();">Ver detalles</button>
+                    </div>
+                    <div class="product" onclick="showProductDetail('Cítrico Energizante', 'Limón y menta para un toque revitalizante.', 40, 'https://via.placeholder.com/300/00FF00/FFFFFF?text=Citrico+Energizante')">
+                        <img src="https://via.placeholder.com/300/00FF00/FFFFFF?text=Citrico+Energizante" alt="Cítrico Energizante">
+                        <h3>Cítrico Energizante</h3>
+                        <p>40€</p>
+                        <button onclick="openModal('Cítrico Energizante', 'Limón y menta para un toque revitalizante.', 40, 'https://via.placeholder.com/300/00FF00/FFFFFF?text=Citrico+Energizante'); event.stopPropagation();">Ver detalles</button>
+                    </div>
+                    <div class="product" onclick="showProductDetail('Oriental Exótico', 'Especias y almizcles para un aroma sofisticado.', 60, 'https://via.placeholder.com/300/FFD700/FFFFFF?text=Oriental+Exotico')">
+                        <img src="https://via.placeholder.com/300/FFD700/FFFFFF?text=Oriental+Exotico" alt="Oriental Exótico">
+                        <h3>Oriental Exótico</h3>
+                        <p>60€</p>
+                        <button onclick="openModal('Oriental Exótico', 'Especias y almizcles para un aroma sofisticado.', 60, 'https://via.placeholder.com/300/FFD700/FFFFFF?text=Oriental+Exotico'); event.stopPropagation();">Ver detalles</button>
+                    </div>
                 </div>
             </div>
-        </section>
-        <section>
-            <h2>Perfumes Árabes</h2>
-            <div class="products">
-                <div class="product" onclick="openModal('Mandarin Sky Elixir', 'Notas cítricas de mandarina, frescas y afrutadas, con toques celestiales.', 75, 'https://via.placeholder.com/150/FFA500/FFFFFF?text=Mandarin+Sky+Elixir')">
-                    <img src="https://via.placeholder.com/150/FFA500/FFFFFF?text=Mandarin+Sky+Elixir" alt="Mandarin Sky Elixir">
-                    <h3>Mandarin Sky Elixir</h3>
-                    <p>75€</p>
-                    <button onclick="addToCart('Mandarin Sky Elixir', 75); event.stopPropagation();">Añadir al carrito</button>
+
+            <div id="arabes" class="product-group">
+                <h3>Perfumes Árabes</h3>
+                <div class="products">
+                    <div class="product" onclick="showProductDetail('Mandarin Sky Elixir', 'Notas cítricas de mandarina, frescas y afrutadas, con toques celestiales.', 75, 'https://fimgs.net/mdimg/perfume-thumbs/dark-375x500.106709.avif')">
+                        <img src="https://fimgs.net/mdimg/perfume-thumbs/dark-375x500.106709.avif" alt="Mandarin Sky Elixir">
+                        <h3>Mandarin Sky Elixir</h3>
+                        <p>75€</p>
+                        <button onclick="openModal('Mandarin Sky Elixir', 'Notas cítricas de mandarina, frescas y afrutadas, con toques celestiales.', 75, 'https://fimgs.net/mdimg/perfume-thumbs/dark-375x500.106709.avif'); event.stopPropagation();">Ver detalles</button>
+                    </div>
+                    <div class="product" onclick="showProductDetail('Vulcan Feu', 'Aromas intensos y apasionados, con notas de fuego volcánico, especias y madera.', 85, 'https://via.placeholder.com/300/FF0000/FFFFFF?text=Vulcan+Feu')">
+                        <img src="https://via.placeholder.com/300/FF0000/FFFFFF?text=Vulcan+Feu" alt="Vulcan Feu">
+                        <h3>Vulcan Feu</h3>
+                        <p>85€</p>
+                        <button onclick="openModal('Vulcan Feu', 'Aromas intensos y apasionados, con notas de fuego volcánico, especias y madera.', 85, 'https://via.placeholder.com/300/FF0000/FFFFFF?text=Vulcan+Feu'); event.stopPropagation();">Ver detalles</button>
+                    </div>
+                    <div class="product" onclick="showProductDetail('Club de Nuit', 'Seductor y nocturno, con vainilla, ámbar y toques misteriosos.', 90, 'https://via.placeholder.com/300/000000/FFFFFF?text=Club+de+Nuit')">
+                        <img src="https://via.placeholder.com/300/000000/FFFFFF?text=Club+de+Nuit" alt="Club de Nuit">
+                        <h3>Club de Nuit</h3>
+                        <p>90€</p>
+                        <button onclick="openModal('Club de Nuit', 'Seductor y nocturno, con vainilla, ámbar y toques misteriosos.', 90, 'https://via.placeholder.com/300/000000/FFFFFF?text=Club+de+Nuit'); event.stopPropagation();">Ver detalles</button>
+                    </div>
                 </div>
-                <div class="product" onclick="openModal('Vulcan Feu', 'Aromas intensos y apasionados, con notas de fuego volcánico, especias y madera.', 85, 'https://via.placeholder.com/150/FF0000/FFFFFF?text=Vulcan+Feu')">
-                    <img src="https://via.placeholder.com/150/FF0000/FFFFFF?text=Vulcan+Feu" alt="Vulcan Feu">
-                    <h3>Vulcan Feu</h3>
-                    <p>85€</p>
-                    <button onclick="addToCart('Vulcan Feu', 85); event.stopPropagation();">Añadir al carrito</button>
+            </div>
+
+            <div id="recomendados" class="product-group">
+                <h3>Recomendados</h3>
+                <div class="products">
+                    <div class="product" onclick="showProductDetail('Brisa Nocturna', 'Aroma suave y floral para noches especiales.', 50, 'https://via.placeholder.com/300/7B68EE/FFFFFF?text=Brisa+Nocturna')">
+                        <img src="https://via.placeholder.com/300/7B68EE/FFFFFF?text=Brisa+Nocturna" alt="Brisa Nocturna">
+                        <h3>Brisa Nocturna</h3>
+                        <p>50€</p>
+                        <button onclick="openModal('Brisa Nocturna', 'Aroma suave y floral para noches especiales.', 50, 'https://via.placeholder.com/300/7B68EE/FFFFFF?text=Brisa+Nocturna'); event.stopPropagation();">Ver detalles</button>
+                    </div>
+                    <div class="product" onclick="showProductDetail('Fresco Amanecer', 'Un perfume fresco y ligero con notas verdes.', 42, 'https://via.placeholder.com/300/87CEEB/FFFFFF?text=Fresco+Amanecer')">
+                        <img src="https://via.placeholder.com/300/87CEEB/FFFFFF?text=Fresco+Amanecer" alt="Fresco Amanecer">
+                        <h3>Fresco Amanecer</h3>
+                        <p>42€</p>
+                        <button onclick="openModal('Fresco Amanecer', 'Un perfume fresco y ligero con notas verdes.', 42, 'https://via.placeholder.com/300/87CEEB/FFFFFF?text=Fresco+Amanecer'); event.stopPropagation();">Ver detalles</button>
+                    </div>
                 </div>
-                <div class="product" onclick="openModal('Club de Nuit', 'Seductor y nocturno, con vainilla, ámbar y toques misteriosos.', 90, 'https://via.placeholder.com/150/000000/FFFFFF?text=Club+de+Nuit')">
-                    <img src="https://via.placeholder.com/150/000000/FFFFFF?text=Club+de+Nuit" alt="Club de Nuit">
-                    <h3>Club de Nuit</h3>
-                    <p>90€</p>
-                    <button onclick="addToCart('Club de Nuit', 90); event.stopPropagation();">Añadir al carrito</button>
+            </div>
+
+            <div class="detail-panel" id="product-detail">
+                <h3>Detalle del producto</h3>
+                <p>Haz clic en cualquier producto para ver su descripción, imagen y opción de agregar al carrito.</p>
+                <div id="detail-content">
+                    <img id="detail-img" src="https://via.placeholder.com/400x250/cccccc/333333?text=Selecciona+un+producto" alt="Detalle del producto">
+                    <div class="detail-info">
+                        <h4 id="detail-title">Producto no seleccionado</h4>
+                        <p id="detail-desc">Selecciona un producto para ver más información aquí.</p>
+                        <p><strong>Precio: <span id="detail-price">0</span>€</strong></p>
+                        <button id="detail-add-button" onclick="addToCartFromDetail()">Añadir al carrito</button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -246,21 +341,46 @@
         let cart = [];
         let total = 0;
         let currentModalProduct = {};
+        let currentDetailProduct = {};
 
-        function openTab(tabName) {
+        function openTab(tabName, button) {
             const tabs = document.querySelectorAll('.tab-content');
             tabs.forEach(tab => tab.classList.remove('active'));
             document.getElementById(tabName).classList.add('active');
 
             const buttons = document.querySelectorAll('.tab-button');
             buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            if (button) button.classList.add('active');
+        }
+
+        function openSubTab(tabName, button) {
+            const groups = document.querySelectorAll('.product-group');
+            groups.forEach(group => group.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+
+            const buttons = document.querySelectorAll('.subtab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            if (button) button.classList.add('active');
         }
 
         function addToCart(product, price) {
             cart.push({ name: product, price: price });
             total += price;
             updateCart();
+        }
+
+        function showProductDetail(name, desc, price, img) {
+            currentDetailProduct = { name, price };
+            document.getElementById('detail-title').textContent = name;
+            document.getElementById('detail-desc').textContent = desc;
+            document.getElementById('detail-price').textContent = price;
+            document.getElementById('detail-img').src = img;
+            document.getElementById('detail-img').alt = name;
+        }
+
+        function addToCartFromDetail() {
+            if (!currentDetailProduct.name) return;
+            addToCart(currentDetailProduct.name, currentDetailProduct.price);
         }
 
         function updateCart() {
