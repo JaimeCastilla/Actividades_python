@@ -15,11 +15,38 @@
         header {
             background-color: #8B4513;
             color: white;
-            text-align: center;
-            padding: 20px;
+            padding: 10px;
+            position: relative;
         }
-        h1 {
+        .tabs {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .tabs h1 {
             margin: 0;
+            flex-grow: 1;
+            text-align: center;
+        }
+        .tabs nav {
+            display: flex;
+        }
+        .tab-button {
+            background: none;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .tab-button:hover, .tab-button.active {
+            background-color: #A0522D;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
         }
         section {
             max-width: 800px;
@@ -32,15 +59,27 @@
         h2 {
             color: #8B4513;
         }
-        ul {
-            list-style-type: none;
-            padding: 0;
+        .products {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
         }
-        li {
-            margin: 10px 0;
+        .product {
+            flex: 1 1 200px;
+            text-align: center;
+            border: 1px solid #ddd;
             padding: 10px;
-            background-color: #f9f9f9;
-            border-left: 5px solid #8B4513;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .product img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .product h3 {
+            margin: 10px 0;
         }
         footer {
             text-align: center;
@@ -58,7 +97,7 @@
             padding: 5px 10px;
             cursor: pointer;
             border-radius: 4px;
-            margin-left: 10px;
+            margin: 5px;
         }
         button:hover {
             background-color: #A0522D;
@@ -68,50 +107,136 @@
             padding: 10px;
             min-height: 50px;
         }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: black;
+        }
     </style>
 </head>
 <body>
     <header>
-        <h1>Perfumería Elegante</h1>
-        <p>Descubre aromas únicos para cada ocasión</p>
+        <div class="tabs">
+            <h1>Perfumería Elegante</h1>
+            <nav>
+                <button class="tab-button active" onclick="openTab('inicio')">Inicio</button>
+                <button class="tab-button" onclick="openTab('productos')">Productos</button>
+                <button class="tab-button" onclick="openTab('carrito')">Carrito</button>
+            </nav>
+        </div>
     </header>
 
-    <section>
-        <h2>Sobre Nosotros</h2>
-        <p>En Perfumería Elegante, ofrecemos una amplia gama de perfumes de alta calidad. Desde fragancias frescas y cítricas hasta aromas profundos y seductores, tenemos el perfume perfecto para ti.</p>
-    </section>
+    <div id="inicio" class="tab-content active">
+        <section>
+            <h2>Sobre Nosotros</h2>
+            <p>En Perfumería Elegante, ofrecemos una amplia gama de perfumes de alta calidad. Desde fragancias frescas y cítricas hasta aromas profundos y seductores, tenemos el perfume perfecto para ti.</p>
+        </section>
+        <section>
+            <h2>Consejos de Uso</h2>
+            <p>Aplica el perfume en puntos de pulso como muñecas, cuello y detrás de las orejas para una duración óptima. Almacena tus perfumes en un lugar fresco y oscuro.</p>
+        </section>
+    </div>
 
-    <section>
-        <h2>Nuestros Productos Destacados</h2>
-        <ul>
-            <li><strong>Floral Primavera:</strong> Una mezcla refrescante de jazmín y rosas, ideal para el día a día. <button onclick="addToCart('Floral Primavera', 45)">Añadir al carrito</button></li>
-            <li><strong>Nocturno Misterioso:</strong> Notas de vainilla y ámbar para ocasiones especiales. <button onclick="addToCart('Nocturno Misterioso', 55)">Añadir al carrito</button></li>
-            <li><strong>Cítrico Energizante:</strong> Limón y menta para un toque revitalizante. <button onclick="addToCart('Cítrico Energizante', 40)">Añadir al carrito</button></li>
-            <li><strong>Oriental Exótico:</strong> Especias y almizcles para un aroma sofisticado. <button onclick="addToCart('Oriental Exótico', 60)">Añadir al carrito</button></li>
-        </ul>
-    </section>
+    <div id="productos" class="tab-content">
+        <section>
+            <h2>Nuestros Productos Destacados</h2>
+            <div class="products">
+                <div class="product" onclick="openModal('Floral Primavera', 'Una mezcla refrescante de jazmín y rosas, ideal para el día a día.', 45, 'https://via.placeholder.com/150/FF69B4/FFFFFF?text=Floral+Primavera')">
+                    <img src="https://via.placeholder.com/150/FF69B4/FFFFFF?text=Floral+Primavera" alt="Floral Primavera">
+                    <h3>Floral Primavera</h3>
+                    <p>45€</p>
+                    <button onclick="addToCart('Floral Primavera', 45); event.stopPropagation();">Añadir al carrito</button>
+                </div>
+                <div class="product" onclick="openModal('Nocturno Misterioso', 'Notas de vainilla y ámbar para ocasiones especiales.', 55, 'https://via.placeholder.com/150/8B4513/FFFFFF?text=Nocturno+Misterioso')">
+                    <img src="https://via.placeholder.com/150/8B4513/FFFFFF?text=Nocturno+Misterioso" alt="Nocturno Misterioso">
+                    <h3>Nocturno Misterioso</h3>
+                    <p>55€</p>
+                    <button onclick="addToCart('Nocturno Misterioso', 55); event.stopPropagation();">Añadir al carrito</button>
+                </div>
+                <div class="product" onclick="openModal('Cítrico Energizante', 'Limón y menta para un toque revitalizante.', 40, 'https://via.placeholder.com/150/00FF00/FFFFFF?text=Citrico+Energizante')">
+                    <img src="https://via.placeholder.com/150/00FF00/FFFFFF?text=Citrico+Energizante" alt="Cítrico Energizante">
+                    <h3>Cítrico Energizante</h3>
+                    <p>40€</p>
+                    <button onclick="addToCart('Cítrico Energizante', 40); event.stopPropagation();">Añadir al carrito</button>
+                </div>
+                <div class="product" onclick="openModal('Oriental Exótico', 'Especias y almizcles para un aroma sofisticado.', 60, 'https://via.placeholder.com/150/FFD700/FFFFFF?text=Oriental+Exotico')">
+                    <img src="https://via.placeholder.com/150/FFD700/FFFFFF?text=Oriental+Exotico" alt="Oriental Exótico">
+                    <h3>Oriental Exótico</h3>
+                    <p>60€</p>
+                    <button onclick="addToCart('Oriental Exótico', 60); event.stopPropagation();">Añadir al carrito</button>
+                </div>
+            </div>
+        </section>
+        <section>
+            <h2>Perfumes Árabes</h2>
+            <div class="products">
+                <div class="product" onclick="openModal('Mandarin Sky Elixir', 'Notas cítricas de mandarina, frescas y afrutadas, con toques celestiales.', 75, 'https://via.placeholder.com/150/FFA500/FFFFFF?text=Mandarin+Sky+Elixir')">
+                    <img src="https://via.placeholder.com/150/FFA500/FFFFFF?text=Mandarin+Sky+Elixir" alt="Mandarin Sky Elixir">
+                    <h3>Mandarin Sky Elixir</h3>
+                    <p>75€</p>
+                    <button onclick="addToCart('Mandarin Sky Elixir', 75); event.stopPropagation();">Añadir al carrito</button>
+                </div>
+                <div class="product" onclick="openModal('Vulcan Feu', 'Aromas intensos y apasionados, con notas de fuego volcánico, especias y madera.', 85, 'https://via.placeholder.com/150/FF0000/FFFFFF?text=Vulcan+Feu')">
+                    <img src="https://via.placeholder.com/150/FF0000/FFFFFF?text=Vulcan+Feu" alt="Vulcan Feu">
+                    <h3>Vulcan Feu</h3>
+                    <p>85€</p>
+                    <button onclick="addToCart('Vulcan Feu', 85); event.stopPropagation();">Añadir al carrito</button>
+                </div>
+                <div class="product" onclick="openModal('Club de Nuit', 'Seductor y nocturno, con vainilla, ámbar y toques misteriosos.', 90, 'https://via.placeholder.com/150/000000/FFFFFF?text=Club+de+Nuit')">
+                    <img src="https://via.placeholder.com/150/000000/FFFFFF?text=Club+de+Nuit" alt="Club de Nuit">
+                    <h3>Club de Nuit</h3>
+                    <p>90€</p>
+                    <button onclick="addToCart('Club de Nuit', 90); event.stopPropagation();">Añadir al carrito</button>
+                </div>
+            </div>
+        </section>
+    </div>
 
-    <section>
-        <h2>Perfumes Árabes</h2>
-        <ul>
-            <li><strong>Mandarin Sky Elixir:</strong> Notas cítricas de mandarina, frescas y afrutadas, con toques celestiales. Precio: 75€ <button onclick="addToCart('Mandarin Sky Elixir', 75)">Añadir al carrito</button></li>
-            <li><strong>Vulcan Feu:</strong> Aromas intensos y apasionados, con notas de fuego volcánico, especias y madera. Precio: 85€ <button onclick="addToCart('Vulcan Feu', 85)">Añadir al carrito</button></li>
-            <li><strong>Club de Nuit:</strong> Seductor y nocturno, con vainilla, ámbar y toques misteriosos. Precio: 90€ <button onclick="addToCart('Club de Nuit', 90)">Añadir al carrito</button></li>
-        </ul>
-    </section>
+    <div id="carrito" class="tab-content">
+        <section>
+            <h2>Carrito de Compras</h2>
+            <div id="carrito-content">
+                <p>Tu carrito está vacío.</p>
+            </div>
+            <button onclick="clearCart()">Vaciar carrito</button>
+        </section>
+    </div>
 
-    <section>
-        <h2>Consejos de Uso</h2>
-        <p>Aplica el perfume en puntos de pulso como muñecas, cuello y detrás de las orejas para una duración óptima. Almacena tus perfumes en un lugar fresco y oscuro.</p>
-    </section>
-
-    <section id="carrito-section">
-        <h2>Carrito de Compras</h2>
-        <div id="carrito">
-            <p>Tu carrito está vacío.</p>
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modal-title"></h2>
+            <img id="modal-img" src="" alt="" style="width:100%; height:200px; object-fit:cover;">
+            <p id="modal-desc"></p>
+            <p><strong>Precio: <span id="modal-price"></span>€</strong></p>
+            <button onclick="addToCartFromModal()">Añadir al carrito</button>
         </div>
-        <button onclick="clearCart()">Vaciar carrito</button>
-    </section>
+    </div>
 
     <footer>
         <p>&copy; 2026 Perfumería Elegante. Todos los derechos reservados.</p>
@@ -120,6 +245,17 @@
     <script>
         let cart = [];
         let total = 0;
+        let currentModalProduct = {};
+
+        function openTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
 
         function addToCart(product, price) {
             cart.push({ name: product, price: price });
@@ -128,7 +264,7 @@
         }
 
         function updateCart() {
-            const cartDiv = document.getElementById('carrito');
+            const cartDiv = document.getElementById('carrito-content');
             if (cart.length === 0) {
                 cartDiv.innerHTML = '<p>Tu carrito está vacío.</p>';
             } else {
@@ -146,6 +282,32 @@
             cart = [];
             total = 0;
             updateCart();
+        }
+
+        function openModal(name, desc, price, img) {
+            document.getElementById('modal-title').textContent = name;
+            document.getElementById('modal-desc').textContent = desc;
+            document.getElementById('modal-price').textContent = price;
+            document.getElementById('modal-img').src = img;
+            document.getElementById('modal-img').alt = name;
+            currentModalProduct = { name, price };
+            document.getElementById('modal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function addToCartFromModal() {
+            addToCart(currentModalProduct.name, currentModalProduct.price);
+            closeModal();
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal');
+            if (event.target == modal) {
+                closeModal();
+            }
         }
     </script>
 </body>
