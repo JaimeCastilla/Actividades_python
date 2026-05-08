@@ -37,11 +37,26 @@ def is_running(pid: int) -> bool:
         return False
 
 
+def init_minecraft():
+    server_folder = os.path.join(ROOT, 'minecraft-server', 'server')
+    if os.path.exists(os.path.join(server_folder, 'start.sh')) and os.path.exists(os.path.join(server_folder, 'paper-1.20.1.jar')):
+        return
+
+    proc = subprocess.run([
+        SERVER_SCRIPT,
+        'init'
+    ], cwd=WEB_ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    if proc.returncode != 0:
+        raise RuntimeError(proc.stderr.strip() or 'Error al inicializar el servidor')
+
+
 def start_minecraft():
     with process_lock:
         existing = load_pid()
         if existing and is_running(existing):
             return existing
+
+        init_minecraft()
 
         proc = subprocess.Popen([
             SERVER_SCRIPT,
@@ -53,8 +68,8 @@ def start_minecraft():
 
 class RequestHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
-        if self.path == '/' or self.path == '/index.html':
-            self.path = '/index.html'
+        if self.path == '/' or self.path == '/index.html' or self.path == '/iniciar' or self.path == '/iniciar.html':
+            self.path = '/iniciar.html'
             return super().do_GET()
         if self.path == '/status':
             pid = load_pid()
@@ -69,13 +84,19 @@ class RequestHandler(SimpleHTTPRequestHandler):
 
     def do_POST(self):
         if self.path == '/start':
-            pid = start_minecraft()
-            running = pid is not None and is_running(pid)
-            message = 'Servidor iniciado (PID ' + str(pid) + ')' if running else 'No se pudo iniciar el servidor'
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(json.dumps({'running': running, 'message': message}).encode('utf-8'))
+            try:
+                pid = start_minecraft()
+                running = pid is not None and is_running(pid)
+                message = 'Servidor iniciado (PID ' + str(pid) + ')' if running else 'No se pudo iniciar el servidor'
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(json.dumps({'running': running, 'message': message}).encode('utf-8'))
+            except Exception as exc:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(json.dumps({'running': False, 'message': str(exc)}).encode('utf-8'))
             return
         self.send_error(404, 'Not found')
 
