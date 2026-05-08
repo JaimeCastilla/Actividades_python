@@ -1,0 +1,237 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SERVER_DIR="$ROOT_DIR/server"
+JDK_DIR="$ROOT_DIR/jdk"
+JDK_TGZ="$ROOT_DIR/openjdk-17.tar.gz"
+JDK_URL="https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.19+10/OpenJDK17U-jdk_x64_linux_hotspot_17.0.19_10.tar.gz"
+ECJ_JAR="$ROOT_DIR/ecj-3.45.0.jar"
+ECJ_URL="https://repo1.maven.org/maven2/org/eclipse/jdt/ecj/3.45.0/ecj-3.45.0.jar"
+PAPER_JAR="$SERVER_DIR/paper-1.20.1.jar"
+PAPER_URL="https://api.papermc.io/v2/projects/paper/versions/1.20.1/builds/176/downloads/paper-1.20.1-176.jar"
+PLUGIN_SRC_DIR="$ROOT_DIR/daylength-plugin"
+PLUGIN_JAR="$SERVER_DIR/plugins/daylength-plugin.jar"
+PLUGIN_NAME="DayLength"
+
+print_help() {
+  cat <<HELP
+Uso:
+  ./minecraft init          - Prepara el servidor y descarga JDK, Paper 1.20.1 y el compilador
+  ./minecraft start         - Inicia el servidor
+  ./minecraft status        - Comprueba el estado del servidor
+  ./minecraft build-plugin  - Compila el plugin manualmente si cambia el código
+  ./minecraft help          - Muestra esta ayuda
+
+Descripción:
+  Este script descarga un JDK local, Paper 1.20.1, compila un plugin de día de 3 horas
+  y crea un servidor Paper listo para iniciarse sin instalar nada en el sistema.
+
+Carpeta del servidor:
+  $SERVER_DIR
+
+Para iniciar:
+  ./minecraft init
+  ./minecraft start
+HELP
+}
+
+ensure_tool() {
+  local tool="$1"
+  if ! command -v "$tool" >/dev/null 2>&1; then
+    echo "ERROR: No se encontró '$tool'." >&2
+    exit 1
+  fi
+}
+
+download_file() {
+  local url="$1"
+  local dest="$2"
+
+  if command -v curl >/dev/null 2>&1; then
+    curl -L --fail -o "$dest" "$url"
+    return
+  fi
+  if command -v wget >/dev/null 2>&1; then
+    wget -O "$dest" "$url"
+    return
+  fi
+  if command -v python3 >/dev/null 2>&1; then
+    python3 - <<PY
+import sys, urllib.request
+url = sys.argv[1]
+dest = sys.argv[2]
+req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+with urllib.request.urlopen(req) as r:
+    data = r.read()
+with open(dest, 'wb') as f:
+    f.write(data)
+PY
+    return
+  fi
+
+  echo "ERROR: No se encontró curl, wget ni python3 para descargar archivos." >&2
+  exit 1
+}
+
+ensure_jdk() {
+  if [ -d "$JDK_DIR" ] && [ -x "$JDK_DIR/bin/java" ] && [ -x "$JDK_DIR/bin/jar" ]; then
+    return
+  fi
+
+  echo "Descargando JDK 17 local..."
+  download_file "$JDK_URL" "$JDK_TGZ"
+  rm -rf "$JDK_DIR"
+  mkdir -p "$ROOT_DIR"
+  tar -xzf "$JDK_TGZ" -C "$ROOT_DIR"
+  local extracted
+  extracted=$(find "$ROOT_DIR" -maxdepth 1 -type d -name 'jdk-*' | head -n 1)
+  if [ -z "$extracted" ]; then
+    echo "ERROR: No se pudo extraer el JDK." >&2
+    exit 1
+  fi
+  mv "$extracted" "$JDK_DIR"
+  rm -f "$JDK_TGZ"
+}
+
+ensure_ecj() {
+  if [ -f "$ECJ_JAR" ]; then
+    return
+  fi
+  echo "Descargando el compilador ECJ..."
+  download_file "$ECJ_URL" "$ECJ_JAR"
+}
+
+ensure_paper() {
+  mkdir -p "$SERVER_DIR"
+  if [ -f "$PAPER_JAR" ]; then
+    return
+  fi
+  echo "Descargando Paper 1.20.1..."
+  download_file "$PAPER_URL" "$PAPER_JAR"
+}
+
+create_server_files() {
+  mkdir -p "$SERVER_DIR"
+  mkdir -p "$SERVER_DIR/plugins"
+
+  cat > "$SERVER_DIR/eula.txt" <<EULA
+# Se acepta la EULA automáticamente.
+eula=true
+EULA
+
+  cat > "$SERVER_DIR/server.properties" <<PROPS
+motd=Servidor Minecraft 1.20.1 - Día 3 horas
+server-port=25565
+online-mode=false
+allow-flight=false
+spawn-protection=0
+max-players=10
+enable-command-block=true
+pvp=true
+difficulty=easy
+gamemode=survival
+level-name=world
+level-type=default
+generate-structures=true
+spawn-animals=true
+spawn-npcs=true
+spawn-monsters=true
+view-distance=8
+enable-rcon=false
+enable-query=false
+enable-status=true
+PROPS
+
+  cat > "$SERVER_DIR/start.sh" <<'START'
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")"
+if [ ! -f "paper-1.20.1.jar" ]; then
+  echo "ERROR: paper-1.20.1.jar no encontrado. Ejecuta ./minecraft init primero." >&2
+  exit 1
+fi
+exec "$(cd "$(dirname "$0")/.." && pwd)/jdk/bin/java" -Xms1G -Xmx2G -jar "paper-1.20.1.jar" nogui
+START
+  chmod +x "$SERVER_DIR/start.sh"
+}
+
+build_plugin() {
+  if [ ! -d "$PLUGIN_SRC_DIR" ]; then
+    echo "ERROR: No existe el directorio del plugin: $PLUGIN_SRC_DIR" >&2
+    exit 1
+  fi
+  if [ ! -f "$PAPER_JAR" ]; then
+    echo "ERROR: Primero ejecuta ./minecraft init para descargar Paper." >&2
+    exit 1
+  fi
+
+  local build_dir="$PLUGIN_SRC_DIR/build"
+  rm -rf "$build_dir"
+  mkdir -p "$build_dir/classes"
+
+  echo "Compilando plugin..."
+  "$JDK_DIR/bin/java" -jar "$ECJ_JAR" -classpath "$PAPER_JAR" -d "$build_dir/classes" \
+    "$PLUGIN_SRC_DIR/src/main/java/com/example/daylength/DayLengthPlugin.java"
+
+  echo "Creando jar del plugin..."
+  (cd "$build_dir/classes" && "$JDK_DIR/bin/jar" cf "$PLUGIN_JAR" com)
+  "$JDK_DIR/bin/jar" uf "$PLUGIN_JAR" -C "$PLUGIN_SRC_DIR" plugin.yml
+  echo "Plugin compilado e instalado en: $PLUGIN_JAR"
+}
+
+status() {
+  echo "Carpeta del servidor: $SERVER_DIR"
+  echo "- JDK local: $( [ -x "$JDK_DIR/bin/java" ] && echo OK || echo NO )"
+  echo "- Paper jar: $( [ -f "$PAPER_JAR" ] && echo OK || echo NO )"
+  echo "- Plugin jar: $( [ -f "$PLUGIN_JAR" ] && echo OK || echo NO )"
+  echo "- Script de inicio: $( [ -x "$SERVER_DIR/start.sh" ] && echo OK || echo NO )"
+}
+
+main() {
+  if [ $# -lt 1 ]; then
+    print_help
+    exit 0
+  fi
+
+  case "$1" in
+    init)
+      ensure_tool tar
+      ensure_tool find
+      ensure_tool rm
+      ensure_tool mkdir
+      ensure_jdk
+      ensure_ecj
+      ensure_paper
+      create_server_files
+      build_plugin
+      echo "Servidor inicializado correctamente. Ejecuta './minecraft start' dentro del directorio $ROOT_DIR/server para iniciar."
+      ;;
+    build-plugin)
+      ensure_jdk
+      ensure_ecj
+      ensure_paper
+      build_plugin
+      ;;
+    start)
+      if [ ! -x "$SERVER_DIR/start.sh" ]; then
+        echo "ERROR: Servidor no inicializado. Ejecuta './minecraft init' primero." >&2
+        exit 1
+      fi
+      bash "$SERVER_DIR/start.sh"
+      ;;
+    status)
+      status
+      ;;
+    help|--help|-h)
+      print_help
+      ;;
+    *)
+      echo "Comando desconocido: $1" >&2
+      print_help
+      exit 1
+      ;;
+  esac
+}
+
+main "$@"
