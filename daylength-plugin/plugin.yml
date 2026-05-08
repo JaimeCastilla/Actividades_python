@@ -1,0 +1,6 @@
+name: DayLength
+main: com.example.daylength.DayLengthPlugin
+version: "1.0"
+author: "Auto"
+api-version: "1.20"
+description: "Hace que el día dure 3 horas reales en Minecraft 1.20.1"
